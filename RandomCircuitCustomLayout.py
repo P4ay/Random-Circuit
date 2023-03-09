@@ -6,16 +6,18 @@ import math
 
 pi=math.pi
 
-backend= ConfigurableFakeBackend('custom',6, version=1,coupling_map= [[0,1], [1,0], [1,2], [2,1], [2,3], [3,2],[3,4],[1,4],[4,1],[4,3],[4,5],[5,4]],basis_gates=('u1','u2','u3','cx','id'))
-#creating a custom fake backend 
 
 
 
-def random_circuit(num_qubits, depth, base_gates):
+def     random_circuit(num_qubits, depth, base_gates):
     """
     Generates a random quantum circuit with the specified number of qubits,
     depth, and base gates.
     """
+    
+    backend= ConfigurableFakeBackend('custom',6, version=1,coupling_map= [[0,1], [1,0], [1,2], [2,1], [2,3], [3,2],[3,4],[1,4],[4,1],[4,3],[4,5],[5,4]],basis_gates=base_gates)
+    #creating a custom fake backend 
+
     qc = QuantumCircuit(num_qubits)#creating Quantum Circuit qc
     qct=transpile(qc,backend)
     d= qct.depth()# using the tranpiled circuit to include the backend information
@@ -26,7 +28,15 @@ def random_circuit(num_qubits, depth, base_gates):
         q=random.randint(0,num_qubits-1)#choosing random Qubit q
         
         #single qubit gates
-        if gate == 'h':
+        if gate == 'u1':
+            qc.u(0,0,2*pi*random.random(),q)
+        elif gate == 'u2':
+            qc.u(pi/2,2*pi*random.random(),2*pi*random.random(),q)
+        elif gate == 'u3':
+            qc.u(pi*random.random(),2*pi*random.random(),2*pi*random.random(),q)
+        elif gate== 'id':
+            qc.u(0,0,0,q)
+        elif gate == 'h':
             qc.h(q)
         elif gate == 'x':
             qc.x(q)
@@ -71,5 +81,7 @@ def random_circuit(num_qubits, depth, base_gates):
         qct=transpile(qc,backend)
         d= qct.depth()#itirating depth
     return qc
-from qiskit.visualization import plot_gate_map
-plot_gate_map(backend, plot_directed=True)
+
+qc=random_circuit(6,7,['u1','u2','u3','cx','id'])
+#genrating a random circuit by calling the function with some random basis gates
+qc.draw('mpl')#drawing the circuit
